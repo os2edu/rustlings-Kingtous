@@ -14,6 +14,12 @@ struct Color {
     blue: u8,
 }
 
+impl Color {
+    fn in_range(color: i16) -> bool {
+        return color <= u8::MAX.into() && u8::MIN as i16 <= color;
+    }
+}
+
 // We will use this error type for these `TryFrom` conversions.
 #[derive(Debug, PartialEq)]
 enum IntoColorError {
@@ -22,8 +28,6 @@ enum IntoColorError {
     // Integer conversion error
     IntConversion,
 }
-
-// I AM NOT DONE
 
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
@@ -38,6 +42,15 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        if Color::in_range(tuple.0) && Color::in_range(tuple.1) && Color::in_range(tuple.2) {
+            Ok(Self {
+                red: tuple.0 as _,
+                green: tuple.1 as _,
+                blue: tuple.2 as _,
+            })
+        } else {
+            Err(IntoColorError::IntConversion)
+        }
     }
 }
 
@@ -45,6 +58,15 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        if Color::in_range(arr[0]) && Color::in_range(arr[1]) && Color::in_range(arr[2]) {
+            Ok(Self {
+                red: arr[0] as _,
+                green: arr[1] as _,
+                blue: arr[2] as _,
+            })
+        } else {
+            Err(IntoColorError::IntConversion)
+        }
     }
 }
 
@@ -52,6 +74,18 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        }
+        if Color::in_range(slice[0]) && Color::in_range(slice[1]) && Color::in_range(slice[2]) {
+            Ok(Self {
+                red: slice[0] as _,
+                green: slice[1] as _,
+                blue: slice[2] as _,
+            })
+        } else {
+            Err(IntoColorError::IntConversion)
+        }
     }
 }
 

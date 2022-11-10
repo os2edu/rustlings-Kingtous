@@ -14,15 +14,13 @@
 
 // Execute `rustlings hint hashmaps3` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
-
 use std::collections::HashMap;
 
 // A structure to store team name and its goal details.
 struct Team {
-    name: String,
-    goals_scored: u8,
-    goals_conceded: u8,
+    pub name: String,
+    pub goals_scored: u8,
+    pub goals_conceded: u8,
 }
 
 fn build_scores_table(results: String) -> HashMap<String, Team> {
@@ -31,15 +29,26 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
 
     for r in results.lines() {
         let v: Vec<&str> = r.split(',').collect();
-        let team_1_name = v[0].to_string();
-        let team_1_score: u8 = v[2].parse().unwrap();
-        let team_2_name = v[1].to_string();
-        let team_2_score: u8 = v[3].parse().unwrap();
-        // TODO: Populate the scores table with details extracted from the
-        // current line. Keep in mind that goals scored by team_1
-        // will be number of goals conceded from team_2, and similarly
-        // goals scored by team_2 will be the number of goals conceded by
-        // team_1.
+        let offset = v.len() / 4 as usize;
+        for i in 0..offset {
+            let mut base = i * 4;
+            let team_1_name = v[base + 0].to_string();
+            let team_1_score: u8 = v[base + 2].parse().unwrap();
+            let team_2_name = v[base + 1].to_string();
+            let team_2_score: u8 = v[base + 3].parse().unwrap();
+
+            if !scores.contains_key(&team_1_name) {
+                scores.insert(team_1_name.clone(), Team { name: team_1_name.clone(), goals_scored: 0, goals_conceded: 0 });
+            }
+            if !scores.contains_key(&team_2_name) {
+                scores.insert(team_2_name.clone(), Team { name: team_2_name.clone(), goals_scored: 0, goals_conceded: 0 });
+            }
+
+            scores.get_mut(&team_1_name).unwrap().goals_scored += team_1_score;
+            scores.get_mut(&team_1_name).unwrap().goals_conceded += team_2_score;
+            scores.get_mut(&team_2_name).unwrap().goals_scored += team_2_score;
+            scores.get_mut(&team_2_name).unwrap().goals_conceded += team_1_score;
+        }
     }
     scores
 }
